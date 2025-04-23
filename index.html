@@ -28,9 +28,15 @@
     tg.expand();
 
     const user = tg.initDataUnsafe.user;
-    document.getElementById('user-name').innerText = `${user.first_name} ${user.last_name || ''} (@${user.username || ''})`;
-    if (user.photo_url) {
-      document.getElementById('user-photo').src = user.photo_url;
+    if (user) {
+      const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+      const username = user.username ? ` (@${user.username})` : '';
+      document.getElementById('user-name').innerText = `👋 Привет, ${fullName}${username}!`;
+      if (user.photo_url) {
+        document.getElementById('user-photo').src = user.photo_url;
+      }
+    } else {
+      document.getElementById('user-name').innerText = '👋 Привет, гость!';
     }
 
     const boardEl = document.getElementById('board');
@@ -77,7 +83,6 @@
       }
     }
 
-    // Инициализация игры
     createBoard();
     placeCircle();
   </script>
