@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Игра на реакцию</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #f0f0f0; }
+    .user-info { margin-top: 20px; }
+    .board { display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; justify-content: center; margin-top: 30px; }
+    .cell { width: 60px; height: 60px; font-size: 30px; background: #ccc; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .score { margin-top: 20px; font-size: 20px; }
+  </style>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <h1>⚡ Игра на реакцию</h1>
+  <div class="user-info">
+    <img id="user-photo" width="80" style="border-radius: 50%;" />
+    <p id="user-name"></p>
+  </div>
+
+  <div class="score">Счёт: <span id="score">0</span></div>
+  <div class="board" id="board"></div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const user = tg.initDataUnsafe.user;
+    document.getElementById('user-name').innerText = `${user.first_name} ${user.last_name || ''} (@${user.username || ''})`;
+    if (user.photo_url) {
+      document.getElementById('user-photo').src = user.photo_url;
+    }
+
+    const boardEl = document.getElementById('board');
+    let score = 0;
+    let circlePosition = [0, 0];
+
+    function createBoard() {
+      boardEl.innerHTML = '';
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.row = i;
+          cell.dataset.col = j;
+          cell.innerText = '🟦';
+          cell.onclick = handleClick;
+          boardEl.appendChild(cell);
+        }
+      }
+    }
+
+    function placeCircle() {
+      const row = Math.floor(Math.random() * 3);
+      const col = Math.floor(Math.random() * 3);
+      circlePosition = [row, col];
+      const index = row * 3 + col;
+      boardEl.children[index].innerText = '🔴';
+    }
+
+    function handleClick(event) {
+      const row = +event.target.dataset.row;
+      const col = +event.target.dataset.col;
+      if (row === circlePosition[0] && col === circlePosition[1]) {
+        score++;
+        document.getElementById('score').innerText = score;
+        createBoard();
+        placeCircle();
+      } else {
+        alert(`💥 Промах! Итоговый счёт: ${score}`);
+        score = 0;
+        document.getElementById('score').innerText = score;
+        createBoard();
+        placeCircle();
+      }
+    }
+
+    // Инициализация игры
+    createBoard();
+    placeCircle();
+  </script>
+</body>
+</html>
